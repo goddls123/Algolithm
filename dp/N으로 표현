@@ -1,0 +1,25 @@
+function solution(N, number) {
+    var answer = -1;
+    const dp = Array.from(new Array(9),()=>new Set())
+    
+    for(let i=1;i<=8;i++){
+        dp[i].add(Number(String(N).repeat(i)))
+        for(let j=1;j<i;j++){
+            dp[i-j].forEach(a=>{
+                dp[j].forEach(b=>{
+                    dp[i].add(a+b)
+                    dp[i].add(a-b)
+                    dp[i].add(a*b)
+                    dp[i].add(Math.floor(a/b))
+                    
+                })
+            })
+        }
+    
+        if(dp[i].has(number)){
+            answer=i
+            break
+        }
+    }
+    return answer;
+}
