@@ -1,3 +1,4 @@
+
 function solution(land) {
     let max =0
     const list = [0,0]
