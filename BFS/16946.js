@@ -12,6 +12,7 @@ class Queue {
     this.tail = null;
     this.length = 0;
   }
+  
   push(v) {
     const node = new Node(v);
     if (this.length === 0) {
