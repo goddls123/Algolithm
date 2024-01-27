@@ -6,7 +6,7 @@ function solution(input_string) {
     for(let i=0;i<input_string.length;i++){
         if(end !==input_string[i]){
             end = input_string[i]
-           alphabet[end]++
+            alphabet[end]++
         }
     }
    
