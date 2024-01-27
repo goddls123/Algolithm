@@ -1,5 +1,5 @@
 function solution(queries) {
-    var answer = [];
+    let answer = [];
     const gen = ['RR','Rr','Rr','rr']
     const recursion = (L,m)=>{
         if(L===2){
