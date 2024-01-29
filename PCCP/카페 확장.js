@@ -16,7 +16,6 @@ function solution(menu, order, k) {
                 queue.shift()
             }
         }
-        // queue = queue.filter(q=>q>0)
         queue.push(menu[order[i]])
         answer =Math.max(answer,queue.length)
     }
