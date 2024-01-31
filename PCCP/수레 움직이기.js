@@ -1,5 +1,4 @@
 function solution(maze) {
-    var answer = 0;
     const n = maze.length
     const m = maze[0].length
     const rVisited=Array.from(new Array(n),()=>new Array(m).fill(0))
@@ -15,6 +14,7 @@ function solution(maze) {
     const isInside = (ax,ay)=>{
         return ax>=0 && ay>=0 &&ax<n &&ay<m
     }
+    
     const isCollaspe = (rx,ry,bx,by)=>{
         return rx===bx &&  ry === by
     }
@@ -28,28 +28,28 @@ function solution(maze) {
     
         if(rx===rEnd[0] && ry===rEnd[1]){
             for(let i=0;i<4;i++){
-                const ax =dx[i]+bx
-                const ay = dy[i] +by
-                if(isCollaspe(ax,ay,rx,ry)) continue
-                if(ax>=0 && ax<n && ay>=0 && ay<m){
-                    if(!bVisited[ax][ay] && maze[ax][ay]!==5){
-                        bVisited[ax][ay]=1
-                        dfs(rx,ry,ax,ay,count+1)
-                        bVisited[ax][ay]=0
+                const abx =dx[i]+bx
+                const aby = dy[i] +by
+                if(isCollaspe(abx,aby,rx,ry)) continue
+                if(isInside(abx,aby,rx,ry)){
+                    if(!bVisited[abx][aby] && maze[abx][aby]!==5){
+                        bVisited[abx][aby]=1
+                        dfs(rx,ry,abx,aby,count+1)
+                        bVisited[abx][aby]=0
                     }
                 }
             }
         }
         else if(bx===bEnd[0] && by===bEnd[1]){
             for(let i=0;i<4;i++){
-                const ax =dx[i]+rx
-                const ay = dy[i] +ry
-                if(isCollaspe(ax,ay,bx,by)) continue
-                if(ax>=0 && ax<n && ay>=0 && ay<m){
-                    if(!rVisited[ax][ay] && maze[ax][ay]!==5 ){
-                        rVisited[ax][ay]=1
-                        dfs(ax,ay,bx,by,count+1)
-                        rVisited[ax][ay]=0
+                const arx =dx[i]+rx
+                const ary = dy[i] +ry
+                if(isCollaspe(arx,ary,bx,by)) continue
+                if(isInside(arx,ary,bx,by)){
+                    if(!rVisited[arx][ary] && maze[arx][ary]!==5 ){
+                        rVisited[arx][ary]=1
+                        dfs(arx,ary,bx,by,count+1)
+                        rVisited[arx][ary]=0
                     }
                 }
             }
@@ -98,9 +98,11 @@ function solution(maze) {
             }
         }
     }
+    
     rVisited[red.x][red.y]=1
     bVisited[blue.x][blue.y]=1
     dfs(red.x,red.y,blue.x,blue.y,0)
+    
     return min===Infinity ? 0  :min;
 }
 
