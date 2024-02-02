@@ -1,19 +1,18 @@
 const file = process.platform === "linux" ? "/dev/stdin" : "./input.txt";
-let input = require("fs").readFileSync(file).toString().trim().split("\n");
+const input = require("fs").readFileSync(file).toString().trim().split("\n");
 
 const N = Number(input[0]);
 const nums = input[1].split(" ").map(Number);
+const array = [nums[0]];
 
-const dp = [nums[0]];
-
-const binarySearch = (n) => {
+const binarySearch = (array, num) => {
   let left = 0;
-  let right = dp.length - 1;
+  let right = array.length - 1;
 
-  let mid;
   while (left < right) {
-    mid = Math.floor((left + right) / 2);
-    if (n > dp[mid]) {
+    let mid = Math.floor((left + right) / 2);
+
+    if (array[mid] < num) {
       left = mid + 1;
     } else {
       right = mid;
@@ -21,14 +20,13 @@ const binarySearch = (n) => {
   }
   return right;
 };
-
 for (let i = 1; i < N; i++) {
-  if (dp[dp.length - 1] < nums[i]) {
-    dp.push(nums[i]);
+  if (nums[i] > array[array.length - 1]) {
+    array.push([nums[i]]);
   } else {
-    let j = binarySearch(nums[i]);
-    dp[j] = nums[i];
+    const index = binarySearch(array, nums[i]);
+    array[index] = nums[i];
   }
 }
 
-console.log(dp.length);
+console.log(array.length);
