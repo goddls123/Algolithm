@@ -1,82 +1,71 @@
 const file = process.platform === "linux" ? "/dev/stdin" : "./input.txt";
-const input = require("fs")
-  .readFileSync(file)
-  .toString()
-  .trim()
-  .split("\n")
-  .map((i) => i.split(" ").map(Number));
+const input = require("fs").readFileSync(file).toString().trim().split("\n");
 
-const [N, M] = input.shift();
-const board = input;
-
+const [N, M] = input.shift().split(" ").map(Number);
+const board = input.map((i) => i.split(" ").map(Number));
 const dx = [0, -1, 0, 1];
 const dy = [-1, 0, 1, 0];
-
-let time = 0;
 let cheeses = [];
 
 for (let i = 0; i < N; i++) {
   for (let j = 0; j < M; j++) {
-    if (board[i][j] === 1) {
-      cheeses.push([i, j, board[i][j]]);
+    if (board[i][j]) {
+      cheeses.push([i, j, 1]);
     }
   }
 }
 
-function melt() {
-  for (let i = 0; i < cheeses.length; i++) {
-    const [x, y, cheese] = cheeses[i];
-    let count = 0;
+const melt = (queue) => {
+  for (let i = 0; i < queue.length; i++) {
+    let [x, y, h] = queue[i];
     for (let j = 0; j < 4; j++) {
-      const ax = x + dx[j];
-      const ay = y + dy[j];
-      if (ax >= 0 && ay >= 0 && ax < N && ay < M) {
-        if (board[ax][ay] === 2) {
-          count++;
-        }
+      const ax = dx[j] + x;
+      const ay = dy[j] + y;
+      if (board[ax][ay] === -2) {
+        h--;
       }
     }
-    if (count > 1) {
-      cheeses[i][2] = 0;
+    if (h < 0) {
+      queue[i][2] = 0;
     }
   }
-
-  for (const [x, y, cheese] of cheeses) {
-    board[x][y] = cheese;
+  for (let i = 0; i < queue.length; i++) {
+    const [x, y, h] = queue[i];
+    board[x][y] = h;
   }
-  return cheeses.filter((c) => c[2]);
-}
+  return queue.filter((q) => q[2] > 0);
+};
 
-function check() {
+const bfs = () => {
+  const visited = Array.from(new Array(N), () => new Array(M).fill(0));
+  visited[0][0] = 1;
+  board[0][0] = -2;
   const queue = [[0, 0]];
-  const visited = Array.from(new Array(N), () => new Array(M).fill(false));
-  visited[0][0] = true;
-  board[0][0] = 2;
 
   while (queue.length) {
     const [x, y] = queue.shift();
 
     for (let i = 0; i < 4; i++) {
-      const ax = x + dx[i];
-      const ay = y + dy[i];
+      const ax = dx[i] + x;
+      const ay = dy[i] + y;
       if (ax >= 0 && ay >= 0 && ax < N && ay < M) {
-        if (!visited[ax][ay] && board[ax][ay] !== 1) {
+        if (!visited[ax][ay] && board[ax][ay] <= 0) {
           visited[ax][ay] = true;
-          board[ax][ay] = 2;
+          board[ax][ay] = -2;
           queue.push([ax, ay]);
         }
       }
     }
   }
-}
+};
 
-while (1) {
-  check();
-  cheeses = melt();
+let time = 0;
+
+while (cheeses.length) {
+  bfs();
+  cheeses = melt(cheeses);
+
   time++;
-  if (cheeses.length === 0) {
-    break;
-  }
 }
 
 console.log(time);
