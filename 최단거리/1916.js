@@ -1,48 +1,91 @@
-const file = process.platform === "linux" ? "/dev/stdin" : "./input.txt";
-let input = require("fs").readFileSync(file).toString().trim().split("\n");
+class minHeap {
+  constructor() {
+    this.heap = [];
+  }
+  swap(a, b) {
+    const tmp = this.heap[a];
+    this.heap[a] = this.heap[b];
+    this.heap[b] = tmp;
+  }
+  push(v) {
+    this.heap.push(v);
+    if (this.heap.length === 1) return;
+    let i = this.heap.length - 1;
+    let parentI = Math.floor((i - 1) / 2);
 
-const [start, end] = input.pop().split(" ").map(Number);
+    while (i && this.heap[i][0] < this.heap[parentI][0]) {
+      this.swap(i, parentI);
+      i = parentI;
+      parentI = Math.floor((i - 1) / 2);
+    }
+  }
+  pop() {
+    if (this.heap.length === 1) {
+      return this.heap.pop();
+    }
+    const tmp = this.heap[0];
+    this.heap[0] = this.heap.pop();
+    let i = 0;
+    let nextI = 0;
+    while (1) {
+      let leftI = i * 2 + 1;
+      let rightI = i * 2 + 2;
+      if (leftI >= this.heap.length) break;
+      if (this.heap[leftI][0] < this.heap[nextI][0]) {
+        nextI = leftI;
+      }
+      if (
+        rightI < this.heap.length &&
+        this.heap[rightI][0] < this.heap[nextI][0]
+      ) {
+        nextI = rightI;
+      }
+      if (nextI === i) break;
+      this.swap(nextI, i);
+      i = nextI;
+    }
+    return tmp;
+  }
+  getLength() {
+    return this.heap.length;
+  }
+}
+const file = process.platform === "linux" ? "/dev/stdin" : "./input.txt";
+const input = require("fs").readFileSync(file).toString().trim().split("\n");
+
 const N = Number(input.shift());
 const M = Number(input.shift());
-input = input.map((i) => i.split(" ").map(Number));
+const [S, E] = input.pop().split(" ").map(Number);
 
 const graph = Array.from(new Array(N + 1), () => []);
 const dp = new Array(N + 1).fill(Infinity);
-const visited = new Array(N + 1).fill(false);
 for (let i = 0; i < M; i++) {
-  const [from, to, cost] = input[i];
-  graph[from].push([to, cost]);
+  const [from, to, cost] = input[i].split(" ").map(Number);
+
+  graph[from].push([cost, to]);
 }
 
-const getMinNode = () => {
-  let min = Infinity;
-  let index = 0;
+const dijkstra = (start) => {
+  const queue = new minHeap();
+  queue.push([0, start]);
+  while (queue.getLength() > 0) {
+    const [cost, node] = queue.pop();
 
-  for (let i = 1; i <= N; i++) {
-    if (!visited[i] && min > dp[i]) {
-      min = dp[i];
-      index = i;
-    }
-  }
-  return index;
-};
+    if (dp[node] < cost) continue;
 
-const dijkstra = (next) => {
-  while (next) {
-    visited[next] = true;
+    dp[node] = cost;
 
-    for (let i = 0; i < graph[next].length; i++) {
-      const [node, cost] = graph[next][i];
-      if (!visited[node]) {
-        dp[node] = Math.min(dp[node], dp[next] + cost);
+    for (let i = 0; i < graph[node].length; i++) {
+      const [nCost, next] = graph[node][i];
+
+      if (cost + nCost < dp[next]) {
+        dp[next] = cost + nCost;
+        queue.push([dp[next], next]);
       }
     }
-
-    next = getMinNode();
   }
 };
 
-dp[start] = 0;
-dijkstra(start);
+dijkstra(S);
 
-console.log(dp[end]);
+console.log(dp[E]);
