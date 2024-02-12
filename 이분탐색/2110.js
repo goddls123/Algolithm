@@ -1,31 +1,30 @@
 const file = process.platform === "linux" ? "/dev/stdin" : "./input.txt";
-let input = require("fs").readFileSync(file).toString().trim().split("\n");
+const input = require("fs").readFileSync(file).toString().trim().split("\n");
 
-const [N, M] = input.shift().split(" ").map(Number);
+const [N, C] = input.shift().split(" ").map(Number);
 const wires = input.map(Number).sort((a, b) => a - b);
 
 let left = 0;
-let right = Math.max(...wires);
-
-function getCount(mid) {
+let right = wires[wires.length - 1];
+let max = 0;
+const isPossible = (mid) => {
   let count = 1;
-  let end = wires[0] + mid;
+  let distance = wires[0] + mid;
   for (let i = 1; i < N; i++) {
-    if (wires[i] >= end) {
+    if (distance <= wires[i]) {
       count++;
-      end = wires[i] + mid;
+      distance = wires[i] + mid;
     }
   }
-  return count;
-}
-let max = 0;
+  return count >= C;
+};
 
 while (left <= right) {
   let mid = Math.floor((left + right) / 2);
 
-  if (getCount(mid) >= M) {
+  if (isPossible(mid)) {
     left = mid + 1;
-    max = Math.max(max, mid);
+    max = mid;
   } else {
     right = mid - 1;
   }
