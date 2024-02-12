@@ -1,18 +1,25 @@
 const file = process.platform === "linux" ? "/dev/stdin" : "./input.txt";
-let input = require("fs").readFileSync(file).toString().trim().split("\n");
+const input = require("fs").readFileSync(file).toString().trim().split("\n");
 
 const T = Number(input.shift());
+let i = 0;
+
 const result = [];
-for (let i = 0; i < T; i++) {
-  const N = Number(input[i * 2]);
-  const nums = input[i * 2 + 1]
+
+for (let k = 0; k < T; k++) {
+  const N = Number(input[i++]);
+  const nums = input[i++]
     .split(" ")
     .map(Number)
-    .sort((a, b) => b - a);
-  let max = nums[N - 2] - nums[N - 1];
+    .sort((a, b) => a - b);
 
-  for (let i = 0; i < N - 2; i++) {
-    max = Math.max(max, nums[i] - nums[i + 2]);
+  let max = nums[1] - nums[0];
+
+  for (let j = 2; j < N; j += 2) {
+    max = Math.max(max, nums[j] - nums[j - 2]);
+  }
+  for (let j = 3; j < N; j += 2) {
+    max = Math.max(max, nums[j] - nums[j - 2]);
   }
   result.push(max);
 }
