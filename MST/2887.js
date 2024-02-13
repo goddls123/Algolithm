@@ -1,55 +1,57 @@
 const file = process.platform === "linux" ? "/dev/stdin" : "./input.txt";
-let input = require("fs").readFileSync(file).toString().trim().split("\n");
+const input = require("fs").readFileSync(file).toString().trim().split("\n");
 
 const N = Number(input.shift());
-input = input.map((i) => i.split(" ").map(Number));
-const dpX = Array.from(new Array(N), () => []);
-const dpY = Array.from(new Array(N), () => []);
-const dpZ = Array.from(new Array(N), () => []);
-
-for (let i = 0; i < N; i++) {
-  dpX[i] = [input[i][0], i];
-  dpY[i] = [input[i][1], i];
-  dpZ[i] = [input[i][2], i];
-}
-
-dpX.sort((a, b) => a[0] - b[0]);
-dpY.sort((a, b) => a[0] - b[0]);
-dpZ.sort((a, b) => a[0] - b[0]);
-const result = [];
-
-for (let i = 0; i < N - 1; i++) {
-  result.push([dpX[i][1], dpX[i + 1][1], dpX[i + 1][0] - dpX[i][0]]);
-  result.push([dpY[i][1], dpY[i + 1][1], dpY[i + 1][0] - dpY[i][0]]);
-  result.push([dpZ[i][1], dpZ[i + 1][1], dpZ[i + 1][0] - dpZ[i][0]]);
-}
-result.sort((a, b) => a[2] - b[2]);
+let X = [];
+let Y = [];
+let Z = [];
 const dp = new Array(N).fill(0).map((a, i) => i);
 
-let sum = 0;
-
-function getParent(node) {
-  if (dp[node] !== node) {
-    dp[node] = getParent(dp[node]);
-  }
-  return dp[node];
+for (let i = 0; i < N; i++) {
+  const [x, y, z] = input[i].split(" ").map(Number);
+  X.push([x, i]);
+  Y.push([y, i]);
+  Z.push([z, i]);
 }
-function union(parentA, parentB) {
-  if (parentA > parentB) {
-    dp[parentA] = parentB;
+
+X.sort((a, b) => a[0] - b[0]);
+Y.sort((a, b) => a[0] - b[0]);
+Z.sort((a, b) => a[0] - b[0]);
+
+const getParent = (n) => {
+  if (n === dp[n]) {
+    return dp[n];
+  }
+  dp[n] = getParent(dp[n]);
+  return dp[n];
+};
+
+const union = (a, b) => {
+  if (a < b) {
+    dp[b] = a;
   } else {
-    dp[parentB] = parentA;
+    dp[a] = b;
   }
-}
+};
+let cost = 0;
+let list = [];
 
-for (let i = 0; i < result.length; i++) {
-  const [from, to, cost] = result[i];
+for (let i = 0; i < N - 1; i++) {
+  list.push([X[i + 1][0] - X[i][0], X[i][1], X[i + 1][1]]);
+  list.push([Y[i + 1][0] - Y[i][0], Y[i][1], Y[i + 1][1]]);
+  list.push([Z[i + 1][0] - Z[i][0], Z[i][1], Z[i + 1][1]]);
+}
+list.sort((a, b) => a[0] - b[0]);
+
+for (let i = 0; i < list.length; i++) {
+  const [value, from, to] = list[i];
   const parentA = getParent(from);
   const parentB = getParent(to);
+
   if (parentA === parentB) continue;
 
   union(parentA, parentB);
-  sum += cost;
+  cost += value;
 }
 
-console.log(sum);
+console.log(cost);
