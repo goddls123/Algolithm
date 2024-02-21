@@ -1,24 +1,22 @@
 function solution(command) {
-    var answer = [];
-    const dx =[0,1,0,-1]
-    const dy = [1,0,-1,0]
+    var answer = [0,0];
     let dir =0
-    let start=[0,0]
-    
-    for(let i =0 ;i<command.length;i++){
-        if(command[i]==='G'){
-            start[0] += dx[dir]
-            start[1] += dy[dir]
-        }else if(command[i]==='B'){
-            start[0] -= dx[dir]
-            start[1] -= dy[dir]
-        }else if(command[i]==='R'){
-            dir++
+    const dx = [0,1,0,-1]
+    const dy = [1,0,-1,0]
+
+    for(let i=0;i<command.length;i++){
+        if(command[i]==='R'){
+            dir = dir ===3 ? 0 : dir+1
+        }else if(command[i]==='L'){
+            dir = dir ===0 ? 3: dir-1
+        }else if(command[i]==='G'){
+            answer[0] +=dx[dir]
+            answer[1] += dy[dir]
         }else{
-            dir--
+            answer[0] -=dx[dir]
+            answer[1] -=dy[dir]
         }
-        
-        dir = (dir+4)%4
     }
-    return start;
+  
+    return answer;
 }
