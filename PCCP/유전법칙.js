@@ -1,24 +1,18 @@
 function solution(queries) {
-    let answer = [];
-    const gen = ['RR','Rr','Rr','rr']
-    const recursion = (L,m)=>{
-        if(L===2){
-            return gen[m]
+    var answer = [];
+    const beans =['RR','Rr','Rr','rr']
+    
+    const recursion = (n,p)=>{
+        if(n===1){
+            return 'Rr'
         }
-        const parent = recursion(L-1, Math.floor(m/4))
+        const parent = recursion(n-1, Math.floor(p/4))
         
         if(parent ==='Rr'){
-            return gen[m%4]
-        }else {
+            return beans[p%4]
+        }else{
             return parent
         }
     }
-    answer = queries.map(([n,p])=>{
-        if(n===1){
-            return 'Rr'
-        }else{
-           return recursion(n,p-1)
-        }
-    })
-    return answer;
+    return queries.map(([n,p])=>recursion(n,p-1))
 }
