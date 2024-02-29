@@ -1,77 +1,68 @@
-function solution(dice) {
-    var answer = [];
-    const n = dice.length;
-    const list = new Array(n).fill(0).map((a,i)=>i)
-    const combination = getComb(n/2,list)
+function solution(coin, cards) {
+    var answer = 0;
+    const n = cards.length/3
+    const num = cards.length+1
+    let round = 0
+    const map = new Map()
+    const rest = new Map()
     
-    const getDiceList = (L,d)=>{
-        if(L===1){
-            return dice[d[0]]
+    for(let i=0;i<n;i++){
+        if(map.has(num-cards[i])){
+            round++
+            map.delete(num-cards[i])
+        }else{
+            map.set(cards[i], true)
         }
-        const array = getDiceList(L-1,d)
-        const tmp =[]
-        for(let i=0;i<array.length;i++){
-            for(let j=0;j<6;j++){
-                tmp.push(array[i]+dice[d[L-1]][j])
+    }
+    
+    let index =0
+    
+    for(index ;index <n ;index++){
+        const num1 =cards[ n+index*2]
+        const num2 =cards[ n+index*2+1]
+        
+        if(coin && map.has(num-num1)){
+            coin--
+            round++
+            map.delete(num-num1)
+        }else{
+            rest.set(num1,true)
+        }
+        
+        if(coin && map.has(num-num2)){
+            coin--
+            round++
+            map.delete(num-num2)
+        }else{
+            rest.set(num2,true)
+        }
+        
+        if(round){
+            round--
+        }else{
+            let flag = false
+            if(coin>=2){
+                for(let key of rest.keys()){
+                    if(rest.has(num-key)){
+                        flag = true
+                        coin-=2
+                        rest.delete(key)
+                        rest.delete(num-key)
+                        break
+                    }
+                }
+            }
+            if(!flag){
+                return index+1
             }
         }
-        return tmp
-    }
-    const binarySearch=(num, array)=>{
-        if(num > array[array.length-1]){
-            return array.length
-        }
-        if(num <array[0]){
-            return 0
-        }
-        let left =0
-        let right = array.length-1
-        while(left<right){
-            let mid = Math.floor((left+right)/2)
-            
-            if(array[mid]<num){
-                left = mid+1
-            }else{
-                right =mid
-            }
-        }
-        return right
-    }
-    let max =0
-    combination.forEach((dice1)=>{
-        const dice2 = list.filter(l=> !dice1.includes(l))
-        const diceList1 = getDiceList(n/2,dice1)
-        const diceList2 = getDiceList(n/2,dice2).sort((a,b)=>a-b)
-        let win =0 
-        for(let i=0;i<diceList1.length;i++){
-            win += binarySearch(diceList1[i], diceList2)   
-        }
-        if(win > max){
-            max = win
-            answer = dice1
-        }
-    })
-    return answer.map(a=>a+1);
-}
-function getComb(L,array){
-    if(L===1){
-        return array.map(a=>[a])
-    }
-    const result =[]
-    
-    array.forEach((fixed,index,origin)=>{
-        const rest = origin.slice(index+1)
-        const comb = getComb(L-1, rest)
-        const attach = comb.map(c=>[fixed,...c])
-        result.push(...attach)
-    })
-    return result
+    }    
+    return n + 1;
 }
 
-
-
-// (6^5 *2   nlogn) 10C5
-
-//  1. 주사위 뽑고 
-//  2. 가능한 경우의 모두 뽑고
-//  3. 정렬하여 가능한 승 모두 합해서 가장 큰값 
+// 코인0 , 코인 1, 코인 2
+// 최대 라운드 n/3+1
+// 1. 지갑 안에 코인0개로 만들 수 있는 갯수 구함
+// 2. 라운드마다 코인1개로 만들 수 있으면 라운드 추가
+// 3. 나머지 코인은 따로 저장 해둔다.
+// 4. round가 0이고 코인이 2개 이상있으면 따로 저장된곳에서 코인 2개 사용해서 round를 이어간다.
