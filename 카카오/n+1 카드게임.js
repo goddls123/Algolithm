@@ -1,63 +1,77 @@
-function solution(coin, cards) {
-    var answer = 0;
-    const n = cards.length
-    const start = n/3
-    let index = 0
-    const num = n+1
-    const map = new Map()
-    const save = new Map()
-    let round =0
+function solution(dice) {
+    var answer = [];
+    const n = dice.length;
+    const list = new Array(n).fill(0).map((a,i)=>i)
+    const combination = getComb(n/2,list)
     
-    for(let i=0;i<start;i++){
-        if(map.has(num-cards[i])){
-            round++
-            map.delete(num-cards[i])
-        }else{
-            map.set(cards[i], true)        
+    const getDiceList = (L,d)=>{
+        if(L===1){
+            return dice[d[0]]
         }
-    }
-    
-    for(index ; index<start;index++){
-        let i = index*2 +start
-        const num1 = cards[i]
-        const num2 = cards[i+1]
-        
-        if(coin && map.has(num-num1)){
-            coin--
-            round++
-            map.delete(num-num1)
-        }else{
-            save.set(num1,true)
-        }
-        
-        if(coin && map.has(num-num2)){
-            coin--
-            round++
-            map.delete(num-num2)
-        }else{
-            save.set(num2,true)
-        }
-        
-        if(round) {
-            round--
-        }else{
-            let flag = false
-            if(coin>=2){
-                for(let key of save.keys()){
-                    if(save.has(num-key)){
-                        save.delete(key)
-                        save.delete(num-key)
-                        coin-=2
-                        flag =true
-                        break
-                    }
-                }
+        const array = getDiceList(L-1,d)
+        const tmp =[]
+        for(let i=0;i<array.length;i++){
+            for(let j=0;j<6;j++){
+                tmp.push(array[i]+dice[d[L-1]][j])
             }
-            
-            if(!flag) break
         }
-      
+        return tmp
     }
-    
-    return index+1;
+    const binarySearch=(num, array)=>{
+        if(num > array[array.length-1]){
+            return array.length
+        }
+        if(num <array[0]){
+            return 0
+        }
+        let left =0
+        let right = array.length-1
+        while(left<right){
+            let mid = Math.floor((left+right)/2)
+            
+            if(array[mid]<num){
+                left = mid+1
+            }else{
+                right =mid
+            }
+        }
+        return right
+    }
+    let max =0
+    combination.forEach((dice1)=>{
+        const dice2 = list.filter(l=> !dice1.includes(l))
+        const diceList1 = getDiceList(n/2,dice1)
+        const diceList2 = getDiceList(n/2,dice2).sort((a,b)=>a-b)
+        let win =0 
+        for(let i=0;i<diceList1.length;i++){
+            win += binarySearch(diceList1[i], diceList2)   
+        }
+        if(win > max){
+            max = win
+            answer = dice1
+        }
+    })
+    return answer.map(a=>a+1);
 }
+function getComb(L,array){
+    if(L===1){
+        return array.map(a=>[a])
+    }
+    const result =[]
+    
+    array.forEach((fixed,index,origin)=>{
+        const rest = origin.slice(index+1)
+        const comb = getComb(L-1, rest)
+        const attach = comb.map(c=>[fixed,...c])
+        result.push(...attach)
+    })
+    return result
+}
+
+
+
+// (6^5 *2   nlogn) 10C5
+
+//  1. 주사위 뽑고 
+//  2. 가능한 경우의 모두 뽑고
+//  3. 정렬하여 가능한 승 모두 합해서 가장 큰값 
