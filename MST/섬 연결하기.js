@@ -1,36 +1,31 @@
 function solution(n, costs) {
-    var answer = 0;
     const dp = new Array(n).fill(0).map((a,i)=>i)
+    let total =0
     
-    
-    const getParent = (a)=>{
-        if(a===dp[a]){
-            return a
+    const getParent=(node)=>{
+        if(dp[node]===node){
+            return node
         }
-        dp[a] = getParent(dp[a])
-        return dp[a]
+        dp[node] = getParent(dp[node])
+        return dp[node]
     }
-    const union =(a,b)=>{
-        if(a < b){
-            dp[b] = a
+    
+    const union=(a,b)=>{
+        if(a>b){
+            dp[a]=b
         }else{
-            dp[a] = b
+            dp[b]=a
         }
-        
     }
-    costs.sort((a,b)=>a[2]-b[2])
     
-    for(let i=0;i<costs.length;i++){
-        const parentA = getParent(costs[i][0])
-        const parentB = getParent(costs[i][1])
-        
-        if(parentA === parentB) continue
-        
-        union(parentA,parentB)
-        answer+=costs[i][2]
-        n--
-        
-        if(n===1)break
-    }
-    return answer;
+    costs.sort((a,b)=>a[2]-b[2])
+        .forEach(([from,to,cost])=>{
+        const parentA = getParent(from)
+        const parentB = getParent(to)
+        if(parentA !== parentB){
+            union(parentA,parentB)   
+            total+=cost
+        }
+    })
+    return total;
 }
