@@ -1,19 +1,22 @@
 function solution(prices) {
-    const n = prices.length
-    var answer = new Array(n).fill(0);
-    const stack =[]
+    var answer = [];
+    const stack = []
     
-    for(let i = 0 ; i< n;i++){
-        while(stack.length && stack[stack.length-1][0]>prices[i]){
-            const [t,index] = stack.pop()
-            answer[index]=i-index
+    for(let i=0;i<prices.length;i++){
+        if(stack.length){
+            while(stack.length && stack[stack.length-1][0]>prices[i]) {
+                const [price, index] = stack.pop()      
+                answer[index]= i-index
+            }
+            stack.push([prices[i],i])
+            
+        }else{
+            stack.push([prices[i],i])
         }
-        stack.push([prices[i],i])
     }
-    
     while(stack.length){
-          const [t,index] = stack.pop()
-          answer[index]=n-1-index
+        const [price, index] = stack.pop()      
+        answer[index]= prices.length-index-1
     }
     return answer;
 }
