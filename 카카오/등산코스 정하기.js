@@ -1,67 +1,87 @@
+class minHeap{
+    constructor(){
+        this.heap=[]
+    }
+    swap(a,b){
+        const tmp = this.heap[a]
+        this.heap[a]=this.heap[b]
+        this.heap[b]=tmp
+    }
+    length(){
+        return this.heap.length
+    }
+    push(v){
+        this.heap.push(v)
+        if(this.heap.length===1)return
+        let i = this.heap.length-1
+        let parentI = Math.floor((i-1)/2)
+        
+        while(i && this.heap[i][0]<this.heap[parentI][0]){
+            this.swap(i,parentI)
+            i=parentI
+            parentI = Math.floor((i-1)/2)
+        }
+    }
+    pop(){
+        if(this.heap.length==1)return this.heap.pop()
+        
+        const tmp = this.heap[0]
+        this.heap[0]=this.heap.pop()
+        
+        let i= 0
+        let nextI =0
+        
+        while(1){
+            let leftI = i*2+1
+            let rightI = i*2+2
+            
+            if(leftI >=this.heap.length) break
+            if(this.heap[leftI][0]<this.heap[nextI][0]){
+                nextI = leftI
+            }
+            if(rightI < this.heap.length &&
+              this.heap[rightI][0]<this.heap[nextI][0]){
+                nextI =rightI
+            }
+            
+            if(nextI===i) break
+            
+            this.swap(i,nextI)
+            i=nextI
+        }
+        return tmp
+    }
+}
 function solution(n, paths, gates, summits) {
     var answer = [];
-    paths.sort((a,b)=>a[2]-b[2])
-    const gMap = new Map()
-    const sMap = new Map()
-    const dp = new Array(n+1).fill(0).map((a,i)=>i)
-    gates.forEach((g)=>{
-        gMap.set(g,true)
+    const dp = new Array(n+1).fill(Infinity)
+    const graph = Array.from(new Array(n+1),()=>[])
+    const queue = new minHeap()
+    paths.forEach(([from,to,cost])=>{
+        graph[from].push([cost,to])
+        graph[to].push([cost,from])
     })
-    summits.forEach(s=>{
-        sMap.set(s,true)
+    gates.forEach(g=>{
+        dp[g]=0
+        queue.push([0,g])
     })
-    const union=(a,b)=>{
-        if(
-            (gMap.has(a) && gMap.has(b)) || 
-            (sMap.has(a) && sMap.has(b))
-        ) return
+    while(queue.length()>0){
+        const [cost,node]=queue.pop()
         
-       if( (sMap.has(a)^sMap.has(b)) || (gMap.has(b) ^ gMap.has(a))){
-           if(sMap.has(a)||gMap.has(a)){
-               dp[b]=a
-           }else{
-               dp[a]=b
-           }
-           return
-       }
-        if(a>b){
-            dp[a]=b
-        }else{
-            dp[b] =a
-        }
-    }
-    const getParent =(a)=>{
-        if(dp[a]===a){
-            return dp[a]
-        }
-        dp[a]= getParent(dp[a])
-        return dp[a]
-    }
-    
-    const isPossible=(a,b)=>{
-        return (gMap.has(a) && sMap.has(b)) || (sMap.has(a) && gMap.has(b))
-    }
-    let min = Infinity
-    for(let i=0;i<paths.length;i++){
-        const [a,b,cost] = paths[i]
-        const parentA =getParent(a)
-        const parentB= getParent(b)
+        if(cost >dp[node])continue
         
-        if(min<cost){
-            break
-        }
-        
-        if(parentA===parentB) continue
-        if(isPossible(parentA,parentB)){
-            min = cost
-            if(sMap.has(parentA)){
-                answer.push([parentA,cost])
-            }else{
-                answer.push([parentB,cost])
+        for(let i=0;i<graph[node].length;i++){
+            const [nCost,next]= graph[node][i]
+            const n = Math.max(nCost,cost)
+            if(dp[next]>n){
+                dp[next] = n
+                if(summits.includes(next))continue
+                queue.push([n,next])
             }
-        }else{
-            union(parentA,parentB)
         }
     }
-    return answer.sort((a,b)=>a[0]-b[0])[0];
+    summits.forEach(s=>{
+        answer.push([s,dp[s]])
+    })
+    return answer.sort((a,b)=>a[1]===b[1] ? a[0]-b[0] : a[1]-b[1])[0];
 }
