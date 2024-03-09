@@ -1,24 +1,26 @@
 function solution(n, times) {
     var answer = 0;
-    let start =0
-    let end = 1e20
-    let min =Infinity
+    let left =0
+    let right = 10**20
     
-    while(start<=end){
-        let mid = Math.floor((start+end)/2)
-       
-        if(isPossible(n,times,mid)){
+    const isPossible=(time)=>{
+        let count =0
+        for(let i=0;i<times.length;i++){
+            count+= Math.floor(time/times[i])
+        }
+        return n <= count
+    }
+    
+    let min = Infinity
+    while(left<=right){
+        let mid = Math.floor((left+right)/2)
+        
+        if(isPossible(mid)){
+            right = mid -1
             min = Math.min(min,mid)
-            end = mid-1
         }else{
-            start = mid+1
+            left = mid+1
         }
     }
     return min;
-}
-function isPossible(n,times,target){
-    
-    let sum = times.reduce((a,c)=>a+ Math.floor(target/c),0)
-    
-    return sum>=n
 }
