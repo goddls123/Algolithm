@@ -1,20 +1,17 @@
 function solution(bandage, health, attacks) {
-  const [time, x, y] = bandage;
-  let life = health;
-  let t = 0;
-
-  for (let [atime, demage] of attacks) {
-    let duration = atime - t - 1;
-    duration = duration >= 0 ? duration : 0;
-    life += duration * x + Math.floor(duration / time) * y;
-    life = life > health ? health : life;
-    life -= demage;
-    if (life <= 0) {
-      life = -1;
-      break;
+    let life = health
+    const [t,x,y]= bandage
+    let now = 0
+    for(let [time, attack] of attacks){
+        life += (time-now-1)*x + Math.floor((time-now-1)/t)*y
+        if(life>health){
+            life = health
+        }
+        life -= attack
+        if(life<=0){
+            return -1
+        }
+        now = time
     }
-    t = atime;
-  }
-
-  return life;
+    return life
 }
