@@ -57,31 +57,42 @@ function solution(n, paths, gates, summits) {
     const dp = new Array(n+1).fill(Infinity)
     const graph = Array.from(new Array(n+1),()=>[])
     const queue = new minHeap()
+    gates = new Set([...gates])
+    summits = new Set([...summits.sort((a,b)=>a-b)])
+    
     paths.forEach(([from,to,cost])=>{
         graph[from].push([cost,to])
         graph[to].push([cost,from])
     })
+
     gates.forEach(g=>{
-        dp[g]=0
+        dp[g] = 0
         queue.push([0,g])
     })
-    while(queue.length()>0){
-        const [cost,node]=queue.pop()
+    
+    while(queue.length()){
+        const [cost ,node] = queue.pop()
         
-        if(cost >dp[node])continue
+        if(dp[node] <cost) continue
         
         for(let i=0;i<graph[node].length;i++){
             const [nCost,next]= graph[node][i]
-            const n = Math.max(nCost,cost)
-            if(dp[next]>n){
-                dp[next] = n
-                if(summits.includes(next))continue
-                queue.push([n,next])
+            n = Math.max(cost,nCost)
+            if(dp[next]  > n){
+                dp[next]= n
+                if(summits.has(next))continue
+                queue.push([dp[next],next])
             }
         }
     }
-    summits.forEach(s=>{
-        answer.push([s,dp[s]])
+    
+    let min = Infinity
+    summits.forEach((s)=>{
+        if(min>dp[s]){
+            min=dp[s]
+            answer= [s,min]
+        }
     })
-    return answer.sort((a,b)=>a[1]===b[1] ? a[0]-b[0] : a[1]-b[1])[0];
+    
+    return answer;
 }
