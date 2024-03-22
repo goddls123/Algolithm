@@ -1,74 +1,71 @@
 function solution(dice) {
     var answer = [];
-    const n= dice.length
+    const n = dice.length
     const list = new Array(n).fill(0).map((a,i)=>i)
     
-    const getComb = (array,L,N)=>{
-        if(L===N){
+    const getComb =(L,array)=>{
+        if(L==1){
             return array.map(a=>[a])
         }
-        
         const result =[]
-        
         array.forEach((fixed,index,origin)=>{
             const rest = origin.slice(index+1)
-            const comb = getComb(rest,L+1,N)
+            const comb = getComb(L-1,rest)
             const attach = comb.map(c=>[fixed,...c])
             result.push(...attach)
         })
         
-        return result 
+        return result
     }
-    const getList = (array,L,N)=>{
-        if(L===N-1){
+    const getList =(array,L)=>{
+        if(L===0){
             return dice[array[L]]
         }
-        const tmp = getList(array,L+1,N)
-        const result =[]
+        const tmp = getList(array,L-1)
+        const result =[ ]
         for(let i=0;i<tmp.length;i++){
             for(let j=0;j<6;j++){
-                result.push(tmp[i] + dice[array[L]][j])
+                result.push(tmp[i]+dice[array[L]][j])
             }
         }
         return result
     }
+    
     const binarySearch=(array,num)=>{
-        if(array[array.length-1] <num){
+        if(num>array[array.length-1]){
             return array.length
-        }
-        if(array[0]>=num){
+        }else if(num<=array[0]){
             return 0
         }
-        
-        let left =0
+        let left = 0
         let right = array.length-1
         
         while(left<right){
             let mid = Math.floor((left+right)/2)
             
-            if(array[mid]<num){
+            if(num>array[mid]){
                 left = mid+1
             }else{
-                right =mid
+                right = mid
             }
         }
         return right
     }
-    let max = 0
-    getComb(list,1,n/2).forEach(dice1=>{
+    let max =0
+    getComb(n/2,list).forEach(dice1=>{
         const dice2 = list.filter(l=>!dice1.includes(l))
-        const diceList1 = getList(dice1,0,n/2)
-        const diceList2 = getList(dice2,0,n/2).sort((a,b)=>a-b)
+        const diceList1 = getList(dice1 , n/2-1)
+        const diceList2 = getList(dice2 , n/2-1).sort((a,b)=>a-b)
         
-        let count=0
+        let win = 0
         for(let i=0;i<diceList1.length;i++){
-            count += binarySearch(diceList2, diceList1[i])
+            win += binarySearch(diceList2,diceList1[i])    
         }
-        
-        if(count > max){
+        if(max<win){
+            max =win
             answer = dice1
-            max = count
         }
     })
+    
     return answer.map(a=>a+1);
 }
