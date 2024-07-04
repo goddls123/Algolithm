@@ -1,30 +1,26 @@
 function solution(order) {
-    var answer = 0;
-    const stack =[]
-    const n = order.length
-    const array = new Array(n).fill(0)
-    let end =1
-    for(let i=0;i<n;i++){
+    const stack = [];
+    let index =0 ;
+    const array = new Array(order.length).fill(0)
+    
+    for(let i=0;i<order.length;i++){
         array[order[i]-1] = i+1
     }
-
-    for(let i=0;i<n;i++){
-        if(end === array[i]){
-            answer++
-            end++
-        }else if(stack.length && stack[stack.length-1] === end){
-            end++
-            answer++
-            stack.pop()
+    
+    for(let i=0;i<array.length;i++){
+        if(index + 1 === array[i]){
+            index++
+        }else if(index+1 === stack[stack.length-1]){
+           index++
             i--
+            stack.pop()
         }else{
-            stack.push(array[i])
+             stack.push(array[i])
         }
     }
-    while(stack.length && stack[stack.length-1]===end){
+    while(stack.length && index+1 === stack[stack.length-1]){
         stack.pop()
-        end++
-        answer++
+        index++
     }
-    return answer;
+    return index;
 }
