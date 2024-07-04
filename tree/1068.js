@@ -1,39 +1,36 @@
 const file = process.platform === "linux" ? "/dev/stdin" : "./input.txt";
 let input = require("fs").readFileSync(file).toString().trim().split("\n");
 
-const n = Number(input.shift());
-const start = Number(input.pop());
-input = input[0].split(" ").map(Number);
-const graph = Array.from(new Array(n), () => []);
-const map = new Map();
-for (let i = 0; i < input.length; i++) {
-  if (input[i] == -1) continue;
-  if (i === start) continue;
-  graph[input[i]].push(i);
-}
+const array = input[1].split(" ").map(Number);
+const deleteNode = Number(input[2]);
 
-const remove = (node) => {
-  if (!graph[node].length) {
-    map.set(node, true);
+const tree = new Map();
+let root = 0;
+for (let i = 0; i < array.length; i++) {
+  if (array[i] === -1) {
+    root = i;
+    continue;
+  }
+  if (i === deleteNode) continue;
+
+  if (tree.has(array[i])) {
+    tree.get(array[i]).push(i);
+  } else {
+    tree.set(array[i], [i]);
+  }
+}
+let count = 0;
+const recursion = (node) => {
+  if (deleteNode === node) return;
+  if (!tree.has(node)) {
+    count++;
     return;
   }
-
-  for (let i = 0; i < graph[node].length; i++) {
-    const next = graph[node][i];
-    remove(next);
+  const tmp = tree.get(node);
+  for (let i = 0; i < tmp.length; i++) {
+    recursion(tmp[i]);
   }
-  graph[node] = [];
-  map.set(node, true);
-
-  return;
 };
-
-let count = 0;
-remove(start);
-
-for (let i = 0; i < n; i++) {
-  if (!map.has(i) && !graph[i].length) {
-    count++;
-  }
-}
+tree.delete(deleteNode);
+recursion(root);
 console.log(count);
