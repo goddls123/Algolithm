@@ -1,39 +1,38 @@
 function solution(n, edge) {
-    var answer = 0;
-    const graph = Array.from(new Array(n+1),()=>[])
-    const visited= new Array(n+1).fill(0)
+    let max = 0
+    let count =0
+    const graph = Array.from(new Array(n+1),()=> [])
+    const visited = new Array(n+1).fill(false)
     
-    edge.forEach(([from,to])=>{
-        graph[from].push(to)
-        graph[to].push(from)
+    edge.forEach(([start,end])=>{
+        graph[start].push(end)
+        graph[end].push(start)
     })
     
-    const bfs = ()=>{
-        const queue=[[1,0]]
-        visited[1]=true
-        let max=0
-        let c =0
+    const bfs = (start)=>{
+        const queue=[[start,0]]
+        visited[start]=true
+        
         while(queue.length){
-            const [node,count]=queue.shift()
+            const [node,cnt]=queue.shift()
             
-            if(count>max){
-                max =count
-                c=1
-            }else if(count ===max){
-                c++
+            if(cnt>max){
+                count=1
+                max = cnt
+            }else if(cnt ===max){
+                count++
             }
             
             for(let i=0;i<graph[node].length;i++){
-                const next=graph[node][i]
-                
+                const next = graph[node][i]
                 if(!visited[next]){
                     visited[next]=true
-                    queue.push([next,count+1])
+                    queue.push([next,cnt+1])
                 }
             }
+            
         }
-        return c
     }
-    answer = bfs()
-    return answer;
+    bfs(1)
+    return count;
 }
